@@ -41,35 +41,6 @@ async def register_page(request: Request):
     return templates.TemplateResponse("register.html", {"request": request})
 
 
-# --- Register Post ----
-@router.post("/register", response_class=HTMLResponse)
-async def register_user_ui(
-        db: SessionDep,
-        request: Request,
-        email: str = Form(...),
-        password: str = Form(...)
-        ):
-    query = select(User).where(User.email == email)
-    result = await db.execute(query)
-    exist_user = result.scalar_one_or_none()
-
-    if exist_user:
-        return templates.TemplateResponse("register.html", {"request": request,"error": "User already exists"})
-
-    hashed_pass = get_password_hash(password)
-
-    new_user = User(email=email, hashed_pass=hashed_pass)
-    db.add(new_user)
-    await db.commit()
-    await db.refresh(new_user)
-
-    return RedirectResponse(url="/login", status_code=status.HTTP_303_SEE_OTHER)
-
-
-
-
-
-
 # ------- Login ----------
 
 @router.post("/login")

@@ -77,7 +77,7 @@ async def get_current_user_api(
     return user
 
 
-# 👇СПЕЦІАЛЬНИЙ ЛОГІН ДЛЯ SWAGGER
+
 # Swagger відправляє дані не як JSON, а як форму. Тому ми використовуємо OAuth2PasswordRequestForm
 @router.post("/token")
 async def login_for_access_token(
@@ -151,7 +151,7 @@ async def get_current_user(db:SessionDep,
 
 
 
-@router.post('/register', response_model=UserResponse)
+@router.post('/register')
 async def register_user(db: SessionDep,
                         email: str = Form(...),# 👇 Form(...) означає "бери дані з HTML форми"
                         password: str = Form(...),
@@ -174,8 +174,7 @@ async def register_user(db: SessionDep,
     await db.commit()
 
     # 3. Після успішної реєстрації перекидаємо на головну
-    return RedirectResponse(url="/", status_code=302)
-
+    return RedirectResponse(url="/login", status_code=status.HTTP_303_SEE_OTHER)
 
 @router.post("/login")
 async def login_user(db: SessionDep,
