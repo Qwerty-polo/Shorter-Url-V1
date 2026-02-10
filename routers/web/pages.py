@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Request, Depends, Form, HTTPException
 from fastapi.responses import HTMLResponse
 from sqlalchemy import select, desc, delete
+from starlette import status
 from starlette.responses import RedirectResponse
 
 from generatkey.utils import generate_key
@@ -10,7 +11,7 @@ from models.models import User, Url, Click
 from routers.api.auth import get_current_user
 from fastapi import Form
 from routers.api.auth import authenticate_user
-from security.security import create_access_token, ACCESS_TOKEN_EXPIRE_MINUTES, verify_password
+from security.security import create_access_token, ACCESS_TOKEN_EXPIRE_MINUTES, verify_password, get_password_hash
 from datetime import timedelta
 import validators
 
@@ -38,6 +39,36 @@ templates = Jinja2Templates(directory="templates")
 @router.get("/register", response_class=HTMLResponse)
 async def register_page(request: Request):
     return templates.TemplateResponse("register.html", {"request": request})
+
+
+# --- Register Post ----
+@router.post("/register", response_class=HTMLResponse)
+async def register_user_ui(
+        db: SessionDep,
+        request: Request,
+        email: str = Form(...),
+        password: str = Form(...)
+        ):
+    query = select(User).where(User.email == email)
+    result = await db.execute(query)
+    exist_user = result.scalar_one_or_none()
+
+    if exist_user:
+        return templates.TemplateResponse("register.html", {"request": request,"error": "User already exists"})
+
+    hashed_pass = get_password_hash(password)
+
+    new_user = User(email=email, hashed_pass=hashed_pass)
+    db.add(new_user)
+    await db.commit()
+    await db.refresh(new_user)
+
+    return RedirectResponse(url="/login", status_code=status.HTTP_303_SEE_OTHER)
+
+
+
+
+
 
 # ------- Login ----------
 
@@ -92,7 +123,7 @@ async def logout():
 async def main_page(request: Request,
                     db: SessionDep,
                     current_user: User = Depends(get_token_from_cookie)):
-    query = select(Url).where(Url.user_id == 5)
+    query = select(Url).where(Url.user_id == 1)
     result = await db.execute(query)
     urls = result.scalars().all()
 
