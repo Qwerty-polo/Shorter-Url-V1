@@ -15,6 +15,8 @@ if not DATABASE_URL:
 # (Фіча для деплою) Render дає "postgres://", а SQLAlchemy хоче "postgresql://"
 if DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+elif DATABASE_URL.startswith("postgresql://"):
+    DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+asyncpg://", 1)
 
 class Base(DeclarativeBase):
     pass
