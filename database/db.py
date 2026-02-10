@@ -12,6 +12,10 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:
     raise RuntimeError("DATABASE_URL is not set")
 
+# (Фіча для деплою) Render дає "postgres://", а SQLAlchemy хоче "postgresql://"
+if DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+
 class Base(DeclarativeBase):
     pass
 
