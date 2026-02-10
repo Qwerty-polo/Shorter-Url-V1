@@ -7,11 +7,22 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from fastapi.staticfiles import StaticFiles
 
+from database.db import engine, Base
 from routers.api.url_shorter import router as url_shorter_router
 from routers.api.auth import router as register_router
 from routers.web.pages import router as web_pages_router
+from contextlib import asynccontextmanager
 
-app = FastAPI()
+
+# --- ФУНКЦІЯ СТВОРЕННЯ ТАБЛИЦЬ ---
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Цей код виконується при запуску сервера
+    async with engine.begin() as conn:
+        # Створюємо всі таблиці, які описані в models.py
+        await conn.run_sync(Base.metadata.create_all)
+    yield
+app = FastAPI(lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
