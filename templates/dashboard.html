@@ -1,0 +1,223 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+    .my-custom-scrollbar {
+        max-height: 230px;
+        overflow-y: auto;
+        border-bottom: 1px solid #dee2e6;
+    }
+    .my-custom-scrollbar thead th {
+        position: sticky;
+        top: 0;
+        background-color: #f8f9fa;
+        z-index: 1;
+    }
+</style>
+
+<div class="py-3"></div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+
+        {% if error %}
+        <div class="alert alert-danger shadow-sm" role="alert">
+            {{ error }}
+        </div>
+        {% endif %}
+        {% if request.query_params.get("error") == "key_exists" %}
+            <div class="alert alert-danger" role="alert">
+                ⛔ This name already taken! Try another.
+            </div>
+        {% elif request.query_params.get("error") == "reserved_word" %}
+            <div class="alert alert-warning" role="alert">
+                👮‍♂️ You can't use this word (system name).
+            </div>
+        {% elif request.query_params.get("error") == "invalid_chars" %}
+            <div class="alert alert-warning" role="alert">
+                ⚠️ Only letters, numbers
+            </div>
+        {% endif %}
+
+        <div class="card p-4 shadow-sm mb-5 border-0 bg-white">
+            <h4 class="mb-3">🚀 Create link</h4>
+
+            <form action="/shorten" method="post">
+                <div class="mb-3">
+                    <input type="text" name="target_url" class="form-control form-control-lg"
+                           placeholder="Paste your link (https://...)" required>
+                </div>
+
+                <div class="row g-2">
+                    <div class="col-md-6">
+                        <input type="text" name="custom_key" class="form-control"
+                               placeholder="name (not necessarily)">
+                    </div>
+                    <div class="col-md-6">
+                        <button type="submit" class="btn btn-primary w-100">Reduce ✂️</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <h5 class="mb-3 text-secondary magic-text">Your links ({{ urls|length }})</h5>
+
+        {% if urls %}
+        <div class="card shadow-sm border-0 overflow-hidden">
+            <div class="table-responsive my-custom-scrollbar">
+                <table class="table table-hover mb-0 align-middle">
+                    <thead class="table-light">
+                    <tr>
+                        <th scope="col" class="ps-4">Short</th>
+                        <th scope="col">Original</th>
+                        <th scope="col" class="text-center">Clicks</th>
+                        <th scope="col" class="text-end pe-4">Actions</th> </tr>
+                    </thead>
+                    <tbody>
+                    {% for url in urls %}
+                    <tr>
+                        <td class="ps-4">
+                            <a href="/{{ url.key }}" target="_blank" class="fw-bold text-decoration-none text-primary">
+                                {{ url.key }}
+                            </a>
+                        </td>
+                        <td>
+                            <div class="text-truncate" style="max-width: 250px;">
+                                <small class="text-muted">{{ url.target_url }}</small>
+                            </div>
+                        </td>
+                        <td class="text-center">
+                            <span class="badge bg-secondary rounded-pill">{{ url.clicks }}</span>
+                        </td>
+                        <td class="text-end pe-4">
+                            <div class="d-flex justify-content-end gap-2">
+
+                                <button type="button" class="btn btn-sm btn-outline-info"
+                                        onclick="showStats('{{ url.key }}')"
+                                        title="Statistics">
+                                    📊
+                                </button>
+
+                                <button type="button" class="btn btn-sm btn-outline-secondary"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#qrModal_{{ url.key }}">
+                                    <i class="bi bi-qr-code"></i>
+                                </button>
+
+                                <form action="/delete/{{ url.key }}" method="post"
+                                      onsubmit="return confirm('Delete this link?');">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+
+                            <div class="modal fade" id="qrModal_{{ url.key }}" tabindex="-1" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title magic-text">QR-code for: {{ url.key }}</h5>
+                                            <button type="button" class="btn-close btn-close-white qr-btn" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <div class="modal-body text-center">
+                                            <img src="/qr/{{ url.key }}" alt="QR Code" class="img-fluid" style="max-width: 300px;">
+                                            <p class="mt-3 text-muted"><small>{{ request.base_url }}{{ url.key }}</small></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% else %}
+            <div class="text-center py-5">
+                <div class="text-muted mb-2" style="font-size: 3rem;">📭</div>
+                <p class="text-muted">Don't have links yet.</p>
+            </div>
+        {% endif %}
+
+    </div>
+</div>
+
+<div class="modal fade" id="statsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold">📅 History: <span id="modalTitle" class="text-primary"></span></h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body p-0">
+                <table class="table table-striped mb-0 text-center">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Date</th>
+                            <th>Clicks</th>
+                        </tr>
+                    </thead>
+                    <tbody id="statsTableBody">
+                        </tbody>
+                </table>
+
+                <p id="noDataMessage" class="text-center text-muted py-4 d-none">
+                    No clicks yet 📭
+                </p>
+            </div>
+
+            <div class="modal-footer border-0 p-2">
+                <button type="button" class="btn btn-sm btn-secondary w-100" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    async function showStats(key) {
+        const myModal = new bootstrap.Modal(document.getElementById('statsModal'));
+        myModal.show();
+
+        document.getElementById('modalTitle').innerText = key;
+        const tbody = document.getElementById('statsTableBody');
+        const noDataMsg = document.getElementById('noDataMessage');
+
+        tbody.innerHTML = '<tr><td colspan="2">Loading...</td></tr>';
+        noDataMsg.classList.add('d-none');
+
+        try {
+            // Зверни увагу: перевіряємо правильну адресу /stats/{key}
+            const response = await fetch(`/api/stats/${key}`);
+
+            if (response.status === 404) {
+                 tbody.innerHTML = '<tr><td colspan="2" class="text-danger">Link not found</td></tr>';
+                 return;
+            }
+
+            const data = await response.json();
+
+            tbody.innerHTML = '';
+
+            if (data.length === 0) {
+                noDataMsg.classList.remove('d-none');
+            } else {
+                data.forEach(item => {
+                    const row = `
+                        <tr>
+                            <td class="fw-bold text-secondary">${item.date}</td>
+                            <td><span class="badge bg-primary rounded-pill px-3">${item.count}</span></td>
+                        </tr>
+                    `;
+                    tbody.innerHTML += row;
+                });
+            }
+        } catch (error) {
+            tbody.innerHTML = '<tr><td colspan="2" class="text-danger">Error loading data</td></tr>';
+        }
+    }
+</script>
+
+{% endblock %}

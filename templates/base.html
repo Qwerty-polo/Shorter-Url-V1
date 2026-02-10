@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shorter Url</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+
+    <link href="{{ url_for('static', path='/styles.css') }}" rel="stylesheet">
+
+</head>
+<body class="bg-light">
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm mb-4">
+
+        <div class="container d-flex justify-content-between align-items-center">
+
+         <a class="navbar-brand fw-bold text-primary" href="/">✂️ Shorter Url</a>
+
+            <div class="d-flex align-items-center gap-3">
+
+                <button class="btn btn-link nav-link me-3" id="theme-toggle" title="Змінити тему">
+                    <i class="bi bi-moon-stars-fill" id="theme-icon"></i>
+                </button>
+
+                {% if user %}
+                <span class="text-muted d-none d-sm-block">{{ user.email }}</span>
+
+                {% if request.url.path != '/dashboard' %}
+                <a href="/dashboard" class="btn btn-sm btn-primary">MyLinks</a>
+                {% endif %}
+
+                <a href="/logout" class="btn btn-sm btn-outline-danger">Logout</a>
+                {% else %}
+                <a href="/login" class="btn btn-sm btn-outline-primary">Login</a>
+                <a href="/register" class="btn btn-sm btn-dark">Register</a>
+                {% endif %}
+            </div>
+
+        </div>
+    </nav>
+
+    <main class="container">
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <footer class="footer mt-auto py-3 bg-body text-center border-top">
+    <div class="container">
+        <span class="text-body-secondary">© 2025 Shorter Url Company</span>
+    </div>
+</footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 1. Знаходимо кнопку та іконку
+        const toggleBtn = document.getElementById('theme-toggle');
+        const themeIcon = document.getElementById('theme-icon');
+        const htmlElement = document.documentElement;
+
+        // 2. Функція встановлення теми
+        const setTheme = (theme) => {
+            if (theme === 'dark') {
+                htmlElement.setAttribute('data-bs-theme', 'dark');
+                themeIcon.classList.remove('bi-moon-stars-fill');
+                themeIcon.classList.add('bi-sun-fill'); // Міняємо на сонце
+                localStorage.setItem('theme', 'dark');  // Зберігаємо вибір
+            } else {
+                htmlElement.setAttribute('data-bs-theme', 'light');
+                themeIcon.classList.remove('bi-sun-fill');
+                themeIcon.classList.add('bi-moon-stars-fill'); // Міняємо на місяць
+                localStorage.setItem('theme', 'light');
+            }
+        };
+
+        // 3. Перевірка при завантаженні сторінки
+        // Чи є збережена тема?
+        const savedTheme = localStorage.getItem('theme');
+
+        if (savedTheme) {
+            setTheme(savedTheme);
+        } else {
+            // Якщо немає, перевіряємо системні налаштування
+            const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            setTheme(systemPrefersDark ? 'dark' : 'light');
+        }
+
+        // 4. Клік по кнопці
+        toggleBtn.addEventListener('click', () => {
+            const currentTheme = htmlElement.getAttribute('data-bs-theme');
+            setTheme(currentTheme === 'dark' ? 'light' : 'dark');
+        });
+    </script>
+</body>
+</html>

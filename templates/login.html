@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center align-items-center" style="min-height: 80vh;">
+    <div class="col-md-5 col-lg-4">
+        
+        <div class="card p-4 shadow-lg border-0">
+            <div class="text-center mb-4">
+                <h2 class="fw-bold magic-text" >Login 👋</h2>
+                <p class="text-muted">Glad to see you!</p>
+            </div>
+
+            {% if error %}
+            <div class="alert alert-danger" role="alert">
+                {{ error }}
+            </div>
+            {% endif %}
+
+            <form action="/login" method="post">
+                <div class="mb-3">
+                    <label for="email" class="form-label fw-bold">Email</label>
+                    <input type="email" name="email" class="form-control form-control-lg"
+                           id="email" placeholder="name@example.com" required>
+                </div>
+
+                <div class="mb-4">
+                    <label for="password" class="form-label fw-bold">Password</label>
+                    <input type="password" name="password" class="form-control form-control-lg"
+                           id="password" placeholder="********" required>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary btn-lg">Log in</button>
+                </div>
+            </form>
+
+            <div class="text-center mt-4">
+                <p class="text-muted small">Dont have an account? <a href="/register" class="text-primary text-decoration-none fw-bold">Register</a></p>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

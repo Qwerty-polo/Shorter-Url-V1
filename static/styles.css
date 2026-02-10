@@ -1,0 +1,126 @@
+/* static/styles.css */
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-color: #f8f9fa; /* Трохи світліший фон, ніж білий, приємніше для очей */
+
+}
+/*  NEWBAR  */
+
+
+main {
+    flex: 1;
+}
+.display-5 {
+    margin-bottom: 20px ;
+
+}
+/* Робимо заголовки трохи "жирнішими" і темнішими */
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 700;
+    letter-spacing: -0.02em; /* Трохи стягуємо літери, це модно */
+    color: #1a1a1a;
+}
+
+/* Тіні для карток робимо м'якшими (як в Apple/Google) */
+.card {
+    border-radius: 12px; /* Більш округлі кути */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important; /* Дуже ніжна тінь */
+    border: 1px solid rgba(0,0,0,0.05) !important;
+}
+
+/* Кнопки більш округлі */
+.btn {
+    border-radius: 8px;
+    font-weight: 600;
+}
+.reg_reg {
+    color: #dee2e6;
+}
+
+
+/* --- ПРИКЛАД ЗМІНИ КОЛЬОРІВ --- */
+
+/* 1. Як текст виглядає ЗА ЗАМОВЧУВАННЯМ (Світла тема) */
+.magic-text {
+    color: #0d6efd; /* Синій (Bootstrap Primary) */
+    font-weight: bold;
+    font-size: 1.2rem;
+    transition: color 0.3s ease; /* Плавна анімація зміни кольору */
+}
+
+/* 2. Як текст виглядає в ТЕМНІЙ ТЕМІ */
+/* Ми кажемо: "Якщо увімкнено Dark Mode, то .magic-text стає іншим" */
+[data-bs-theme="dark"] .magic-text {
+    color: #39ff14; /* Яскравий неоновий лайм */
+    text-shadow: 0 0 10px rgba(57, 255, 20, 0.5); /* Додаємо трохи світіння */
+}
+.qr-btn {
+    border: 1px solid #ffffff;
+    border-radius: 8px;
+    padding: 6px;
+}
+
+
+
+/* --- DARK MODE SETTINGS --- */
+
+/* 1. Глобальний фон і текст */
+[data-bs-theme="dark"] body {
+    background-color: #0d1117 !important; /* Глибокий темний (GitHub style) */
+    color: #e6edf3;
+}
+
+/* 2. ПЕРЕФАРБОВУЄМО ВСІ БІЛІ БЛОКИ (Це вирішить твою проблему!) */
+/* Цей код знаходить все, що має клас .bg-white або .card, і робить його темним */
+[data-bs-theme="dark"] .bg-white,
+[data-bs-theme="dark"] .card {
+    background-color: #161b22 !important; /* Трохи світліший за фон */
+    color: #e6edf3 !important;
+    border-color: #30363d !important;
+}
+
+/* 3. Інпути (Поля вводу) */
+/* Щоб поле, куди ти вводиш посилання, не було білим */
+[data-bs-theme="dark"] .form-control {
+    background-color: #0d1117;
+    border-color: #30363d;
+    color: #e6edf3;
+}
+/* Коли клікаєш на поле */
+[data-bs-theme="dark"] .form-control:focus {
+    background-color: #0d1117;
+    border-color: #58a6ff; /* Синя рамка при вводі */
+    color: #e6edf3;
+}
+
+/* 4. Навігація (Navbar) */
+[data-bs-theme="dark"] .navbar {
+    background-color: #161b22 !important;
+    border-bottom: 1px solid #30363d;
+}
+
+[data-bs-theme="dark"] .navbar-brand,
+[data-bs-theme="dark"] .nav-link,
+[data-bs-theme="dark"] .navbar-text,
+[data-bs-theme="dark"] .navbar span {
+    color: #e6edf3 !important;
+}
+
+/* 5. Таблиця */
+[data-bs-theme="dark"] .table {
+    --bs-table-bg: transparent;
+    --bs-table-color: #e6edf3;
+    border-color: #30363d;
+}
+[data-bs-theme="dark"] .table-light {
+    background-color: #161b22;
+    color: #e6edf3;
+}
+[data-bs-theme="dark"] .table-light th {
+    background-color: #161b22;
+    color: #e6edf3;
+    border-bottom: 1px solid #30363d;
+}
